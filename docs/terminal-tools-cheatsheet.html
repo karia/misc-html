@@ -400,8 +400,10 @@
       すべてのバインドは <code>config.toml</code> で変更可能。<kbd>prefix</kbd><kbd>?</kbd> で有効なバインド一覧を表示。
       <code>herdr config reset-keys</code> でデフォルトに戻せます。<br>
       <strong>ペインのタブ化 / ワークスペース化:</strong> これらはキーバインドではなく <code>herdr pane move</code> CLI で行います
-      （現状 CLI コマンドをキーに割り当てる仕組みは無いため）。<code>--label</code> / <code>--tab-label</code> で名前を、
-      <code>--no-focus</code> で移動後のフォーカスを制御できます。なおタブ丸ごとをワークスペース化するコマンドは無く、昇格はペイン単位です。
+      （現状 CLI コマンドをキーに割り当てる仕組みは無いため）。対象ペインは位置引数の <code>&lt;pane_id&gt;</code> で指定し、
+      現在のペインは環境変数 <code>$HERDR_PANE_ID</code>（または <code>herdr pane current</code>）で取得します。
+      <code>--label</code> / <code>--tab-label</code> で名前を、<code>--no-focus</code> で移動後のフォーカスを制御できます。
+      なおタブ丸ごとをワークスペース化するコマンドは無く、昇格はペイン単位です。
     </div>
 
     <div class="grid">
@@ -454,9 +456,9 @@
       <div class="card cli">
         <h3>ペインの昇格（CLI）</h3>
         <table>
-          <tr><td class="action">現在のペインを新規タブへ</td><td class="keys"><code>herdr pane move --current --new-tab</code></td></tr>
-          <tr><td class="action">現在のペインを新規ワークスペースへ</td><td class="keys"><code>herdr pane move --current --new-workspace</code></td></tr>
-          <tr><td class="action">現在のペインを既存タブへ移動</td><td class="keys"><code>herdr pane move --current --tab &lt;id&gt; --split right|down</code></td></tr>
+          <tr><td class="action">現在のペインを新規タブへ</td><td class="keys"><code>herdr pane move "$HERDR_PANE_ID" --new-tab</code></td></tr>
+          <tr><td class="action">現在のペインを新規ワークスペースへ</td><td class="keys"><code>herdr pane move "$HERDR_PANE_ID" --new-workspace</code></td></tr>
+          <tr><td class="action">現在のペインを既存タブへ移動</td><td class="keys"><code>herdr pane move "$HERDR_PANE_ID" --tab &lt;id&gt; --split right|down</code></td></tr>
         </table>
       </div>
 
