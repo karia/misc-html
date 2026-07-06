@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>cmux &amp; herdr チートシート</title>
+<title>herdr &amp; cmux チートシート</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -226,17 +226,101 @@
 <body>
 <div class="wrap">
   <header class="page">
-    <h1>cmux &amp; herdr &amp; lazygit ショートカットチートシート</h1>
+    <h1>herdr &amp; cmux &amp; lazygit ショートカットチートシート</h1>
     <p>ターミナルマルチプレクサ &amp; Git TUI</p>
   </header>
   <p class="tools">最終更新: 2026-07-06 ／ 出典:
-    <a href="https://cmux.com/docs/keyboard-shortcuts">cmux</a> ・
     <a href="https://herdr.dev/docs/keyboard/">herdr</a> ・
+    <a href="https://cmux.com/docs/keyboard-shortcuts">cmux</a> ・
     <a href="https://github.com/jesseduffield/lazygit/blob/master/docs/keybindings/Keybindings_en.md">lazygit</a>
     <br>
     <button type="button" class="toggle-all" data-action="open">すべて展開</button>
     <button type="button" class="toggle-all" data-action="close">すべて折りたたむ</button>
   </p>
+
+  <!-- ============ herdr ============ -->
+  <details id="herdr" class="tool" open>
+    <summary class="tool-title">
+      <span class="badge">herdr</span>
+      <h2>herdr</h2>
+      <span class="desc">ターミナル内で動く agent multiplexer。tmux 風のプレフィックス方式。マウス操作も可能。</span>
+    </summary>
+    <div class="tool-body">
+    <div class="note">
+      <strong>プレフィックス方式:</strong> デフォルトのプレフィックス <code>ctrl+b</code> を押して離してから次のキーを押します（<code>config.toml</code> で変更可、<kbd>prefix</kbd><kbd>?</kbd> で一覧表示）。<br>
+      <strong>ペインのタブ化 / ワークスペース化:</strong> キーバインドは無く、下記の <code>herdr pane move</code> ワンライナー（<code>jq</code> が必要）で行います（昇格はペイン単位）。
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>セッション / 全体</h3>
+        <table>
+          <tr><td class="action">セッションをデタッチ</td><td class="keys"><kbd>prefix</kbd><kbd>q</kbd></td></tr>
+          <tr><td class="action">全バインド一覧を表示</td><td class="keys"><kbd>prefix</kbd><kbd>?</kbd></td></tr>
+          <tr><td class="action">Goto ピッカー</td><td class="keys"><kbd>prefix</kbd><kbd>g</kbd></td></tr>
+          <tr><td class="action">サイドバー切替</td><td class="keys"><kbd>prefix</kbd><kbd>b</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>ワークスペース</h3>
+        <table>
+          <tr><td class="action">ワークスペースナビゲーション</td><td class="keys"><kbd>prefix</kbd><kbd>w</kbd></td></tr>
+          <tr><td class="action">新規ワークスペース</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>n</kbd></td></tr>
+          <tr><td class="action">ワークスペース名変更</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>w</kbd></td></tr>
+          <tr><td class="action">ワークスペースを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>d</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>タブ制御</h3>
+        <table>
+          <tr><td class="action">新規タブ</td><td class="keys"><kbd>prefix</kbd><kbd>c</kbd></td></tr>
+          <tr><td class="action">次のタブ</td><td class="keys"><kbd>prefix</kbd><kbd>n</kbd></td></tr>
+          <tr><td class="action">前のタブ</td><td class="keys"><kbd>prefix</kbd><kbd>p</kbd></td></tr>
+          <tr><td class="action">タブ 1〜9 へジャンプ</td><td class="keys"><kbd>prefix</kbd><kbd>1</kbd><span class="sep">〜</span><kbd>9</kbd></td></tr>
+          <tr><td class="action">タブ名変更</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>t</kbd></td></tr>
+          <tr><td class="action">タブを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>x</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>ペイン管理</h3>
+        <table>
+          <tr><td class="action">右に分割</td><td class="keys"><kbd>prefix</kbd><kbd>v</kbd></td></tr>
+          <tr><td class="action">下に分割</td><td class="keys"><kbd>prefix</kbd><kbd>-</kbd></td></tr>
+          <tr><td class="action">ペイン間を移動</td><td class="keys"><kbd>prefix</kbd><span class="arrowkeys"><kbd class="up"><b>k</b><i>↑</i></kbd><kbd class="left"><b>h</b><i>←</i></kbd><kbd class="down"><b>j</b><i>↓</i></kbd><kbd class="right"><b>l</b><i>→</i></kbd></span></td></tr>
+          <tr><td class="action">ペインを入替</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><span class="arrowkeys"><kbd class="up"><b>k</b><i>↑</i></kbd><kbd class="left"><b>h</b><i>←</i></kbd><kbd class="down"><b>j</b><i>↓</i></kbd><kbd class="right"><b>l</b><i>→</i></kbd></span></td></tr>
+          <tr><td class="action">ペインをズーム</td><td class="keys"><kbd>prefix</kbd><kbd>z</kbd></td></tr>
+          <tr><td class="action">ペインを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>x</kbd></td></tr>
+          <tr><td class="action">リサイズモード</td><td class="keys"><kbd>prefix</kbd><kbd>r</kbd></td></tr>
+          <tr><td class="action">コピーモード</td><td class="keys"><kbd>prefix</kbd><kbd>[</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card cli">
+        <h3>ペインの昇格（CLI）</h3>
+        <table>
+          <tr><td class="action">現在のペインを新規タブへ</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --new-tab</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
+          <tr><td class="action">現在のペインを新規ワークスペースへ</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --new-workspace</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
+          <tr><td class="action">現在のペインを既存タブへ移動</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --tab &lt;id&gt; --split right|down</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>コピーモード（<kbd>prefix</kbd><kbd>[</kbd> で開始）</h3>
+        <table>
+          <tr><td class="action">移動</td><td class="keys"><span class="arrowkeys"><kbd class="up"><b>k</b><i>↑</i></kbd><kbd class="left"><b>h</b><i>←</i></kbd><kbd class="down"><b>j</b><i>↓</i></kbd><kbd class="right"><b>l</b><i>→</i></kbd></span></td></tr>
+          <tr><td class="action">単語移動</td><td class="keys"><kbd>w</kbd><kbd>b</kbd><kbd>e</kbd></td></tr>
+          <tr><td class="action">段落移動</td><td class="keys"><kbd>{</kbd><kbd>}</kbd></td></tr>
+          <tr><td class="action">選択開始</td><td class="keys"><kbd>v</kbd><span class="sep">/</span><kbd>Space</kbd></td></tr>
+          <tr><td class="action">コピー</td><td class="keys"><kbd>y</kbd><span class="sep">/</span><kbd>Enter</kbd></td></tr>
+          <tr><td class="action">終了</td><td class="keys"><kbd>q</kbd><span class="sep">/</span><kbd>Esc</kbd></td></tr>
+        </table>
+      </div>
+    </div>
+    </div>
+  </details>
 
   <!-- ============ cmux ============ -->
   <details id="cmux" class="tool" open>
@@ -396,90 +480,6 @@
           <tr><td class="action">現在の項目の未読切替</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>U</kbd></td></tr>
           <tr><td class="action">最古の未読にして次へ</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>U</kbd></td></tr>
           <tr><td class="action">フォーカス中のパネルを点滅</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>H</kbd></td></tr>
-        </table>
-      </div>
-    </div>
-    </div>
-  </details>
-
-  <!-- ============ herdr ============ -->
-  <details id="herdr" class="tool" open>
-    <summary class="tool-title">
-      <span class="badge">herdr</span>
-      <h2>herdr</h2>
-      <span class="desc">ターミナル内で動く agent multiplexer。tmux 風のプレフィックス方式。マウス操作も可能。</span>
-    </summary>
-    <div class="tool-body">
-    <div class="note">
-      <strong>プレフィックス方式:</strong> デフォルトのプレフィックス <code>ctrl+b</code> を押して離してから次のキーを押します（<code>config.toml</code> で変更可、<kbd>prefix</kbd><kbd>?</kbd> で一覧表示）。<br>
-      <strong>ペインのタブ化 / ワークスペース化:</strong> キーバインドは無く、下記の <code>herdr pane move</code> ワンライナー（<code>jq</code> が必要）で行います（昇格はペイン単位）。
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h3>セッション / 全体</h3>
-        <table>
-          <tr><td class="action">セッションをデタッチ</td><td class="keys"><kbd>prefix</kbd><kbd>q</kbd></td></tr>
-          <tr><td class="action">全バインド一覧を表示</td><td class="keys"><kbd>prefix</kbd><kbd>?</kbd></td></tr>
-          <tr><td class="action">Goto ピッカー</td><td class="keys"><kbd>prefix</kbd><kbd>g</kbd></td></tr>
-          <tr><td class="action">サイドバー切替</td><td class="keys"><kbd>prefix</kbd><kbd>b</kbd></td></tr>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>ワークスペース</h3>
-        <table>
-          <tr><td class="action">ワークスペースナビゲーション</td><td class="keys"><kbd>prefix</kbd><kbd>w</kbd></td></tr>
-          <tr><td class="action">新規ワークスペース</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>n</kbd></td></tr>
-          <tr><td class="action">ワークスペース名変更</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>w</kbd></td></tr>
-          <tr><td class="action">ワークスペースを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>d</kbd></td></tr>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>タブ制御</h3>
-        <table>
-          <tr><td class="action">新規タブ</td><td class="keys"><kbd>prefix</kbd><kbd>c</kbd></td></tr>
-          <tr><td class="action">次のタブ</td><td class="keys"><kbd>prefix</kbd><kbd>n</kbd></td></tr>
-          <tr><td class="action">前のタブ</td><td class="keys"><kbd>prefix</kbd><kbd>p</kbd></td></tr>
-          <tr><td class="action">タブ 1〜9 へジャンプ</td><td class="keys"><kbd>prefix</kbd><kbd>1</kbd><span class="sep">〜</span><kbd>9</kbd></td></tr>
-          <tr><td class="action">タブ名変更</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>t</kbd></td></tr>
-          <tr><td class="action">タブを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>x</kbd></td></tr>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>ペイン管理</h3>
-        <table>
-          <tr><td class="action">右に分割</td><td class="keys"><kbd>prefix</kbd><kbd>v</kbd></td></tr>
-          <tr><td class="action">下に分割</td><td class="keys"><kbd>prefix</kbd><kbd>-</kbd></td></tr>
-          <tr><td class="action">ペイン間を移動</td><td class="keys"><kbd>prefix</kbd><span class="arrowkeys"><kbd class="up"><b>k</b><i>↑</i></kbd><kbd class="left"><b>h</b><i>←</i></kbd><kbd class="down"><b>j</b><i>↓</i></kbd><kbd class="right"><b>l</b><i>→</i></kbd></span></td></tr>
-          <tr><td class="action">ペインを入替</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><span class="arrowkeys"><kbd class="up"><b>k</b><i>↑</i></kbd><kbd class="left"><b>h</b><i>←</i></kbd><kbd class="down"><b>j</b><i>↓</i></kbd><kbd class="right"><b>l</b><i>→</i></kbd></span></td></tr>
-          <tr><td class="action">ペインをズーム</td><td class="keys"><kbd>prefix</kbd><kbd>z</kbd></td></tr>
-          <tr><td class="action">ペインを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>x</kbd></td></tr>
-          <tr><td class="action">リサイズモード</td><td class="keys"><kbd>prefix</kbd><kbd>r</kbd></td></tr>
-          <tr><td class="action">コピーモード</td><td class="keys"><kbd>prefix</kbd><kbd>[</kbd></td></tr>
-        </table>
-      </div>
-
-      <div class="card cli">
-        <h3>ペインの昇格（CLI）</h3>
-        <table>
-          <tr><td class="action">現在のペインを新規タブへ</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --new-tab</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
-          <tr><td class="action">現在のペインを新規ワークスペースへ</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --new-workspace</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
-          <tr><td class="action">現在のペインを既存タブへ移動</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --tab &lt;id&gt; --split right|down</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>コピーモード（<kbd>prefix</kbd><kbd>[</kbd> で開始）</h3>
-        <table>
-          <tr><td class="action">移動</td><td class="keys"><span class="arrowkeys"><kbd class="up"><b>k</b><i>↑</i></kbd><kbd class="left"><b>h</b><i>←</i></kbd><kbd class="down"><b>j</b><i>↓</i></kbd><kbd class="right"><b>l</b><i>→</i></kbd></span></td></tr>
-          <tr><td class="action">単語移動</td><td class="keys"><kbd>w</kbd><kbd>b</kbd><kbd>e</kbd></td></tr>
-          <tr><td class="action">段落移動</td><td class="keys"><kbd>{</kbd><kbd>}</kbd></td></tr>
-          <tr><td class="action">選択開始</td><td class="keys"><kbd>v</kbd><span class="sep">/</span><kbd>Space</kbd></td></tr>
-          <tr><td class="action">コピー</td><td class="keys"><kbd>y</kbd><span class="sep">/</span><kbd>Enter</kbd></td></tr>
-          <tr><td class="action">終了</td><td class="keys"><kbd>q</kbd><span class="sep">/</span><kbd>Esc</kbd></td></tr>
         </table>
       </div>
     </div>
