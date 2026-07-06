@@ -146,6 +146,8 @@
   tr:first-child td { border-top: none; }
   td.action { color: var(--muted); padding-right: 8px; }
   td.keys { text-align: right; white-space: nowrap; }
+  .card.cli td.keys { text-align: left; white-space: normal; }
+  .card.cli td.keys code { display: inline-block; font-size: 12px; }
 
   kbd {
     display: inline-block;
@@ -396,7 +398,10 @@
       <strong>プレフィックス方式:</strong> デフォルトのプレフィックスは <code>ctrl+b</code>。
       プレフィックスを押して離してから、次のキーを押します（例: <code>ctrl+b</code> → <code>c</code> で新規タブ）。<br>
       すべてのバインドは <code>config.toml</code> で変更可能。<kbd>prefix</kbd><kbd>?</kbd> で有効なバインド一覧を表示。
-      <code>herdr config reset-keys</code> でデフォルトに戻せます。
+      <code>herdr config reset-keys</code> でデフォルトに戻せます。<br>
+      <strong>ペインのタブ化 / ワークスペース化:</strong> これらはキーバインドではなく <code>herdr pane move</code> CLI で行います
+      （現状 CLI コマンドをキーに割り当てる仕組みは無いため）。<code>--label</code> / <code>--tab-label</code> で名前を、
+      <code>--no-focus</code> で移動後のフォーカスを制御できます。なおタブ丸ごとをワークスペース化するコマンドは無く、昇格はペイン単位です。
     </div>
 
     <div class="grid">
@@ -443,6 +448,15 @@
           <tr><td class="action">ペインを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>x</kbd></td></tr>
           <tr><td class="action">リサイズモード</td><td class="keys"><kbd>prefix</kbd><kbd>r</kbd></td></tr>
           <tr><td class="action">コピーモード</td><td class="keys"><kbd>prefix</kbd><kbd>[</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card cli">
+        <h3>ペインの昇格（CLI）</h3>
+        <table>
+          <tr><td class="action">現在のペインを新規タブへ</td><td class="keys"><code>herdr pane move --current --new-tab</code></td></tr>
+          <tr><td class="action">現在のペインを新規ワークスペースへ</td><td class="keys"><code>herdr pane move --current --new-workspace</code></td></tr>
+          <tr><td class="action">現在のペインを既存タブへ移動</td><td class="keys"><code>herdr pane move --current --tab &lt;id&gt; --split right|down</code></td></tr>
         </table>
       </div>
 
