@@ -147,7 +147,22 @@
   td.action { color: var(--muted); padding-right: 8px; }
   td.keys { text-align: right; white-space: nowrap; }
   .card.cli td.keys { text-align: left; white-space: normal; }
-  .card.cli td.keys code { display: inline-block; font-size: 12px; }
+  .cmd { display: flex; align-items: flex-start; gap: 8px; }
+  .cmd code { display: block; flex: 1; font-size: 12px; word-break: break-all; }
+  .copy-btn {
+    flex: none;
+    font-family: inherit;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { border-color: var(--muted); color: var(--text); }
+  .copy-btn.copied { color: var(--accent-lazygit); border-color: var(--accent-lazygit); }
 
   kbd {
     display: inline-block;
@@ -204,6 +219,7 @@
   @media print {
     body { background: #fff; color: #000; padding: 0; }
     .card { border: 1px solid #ccc; }
+    .copy-btn { display: none; }
   }
 </style>
 </head>
@@ -395,13 +411,8 @@
     </summary>
     <div class="tool-body">
     <div class="note">
-      <strong>プレフィックス方式:</strong> デフォルトのプレフィックスは <code>ctrl+b</code>。
-      プレフィックスを押して離してから、次のキーを押します（例: <code>ctrl+b</code> → <code>c</code> で新規タブ）。<br>
-      すべてのバインドは <code>config.toml</code> で変更可能。<kbd>prefix</kbd><kbd>?</kbd> で有効なバインド一覧を表示。
-      <code>herdr config reset-keys</code> でデフォルトに戻せます。<br>
-      <strong>ペインのタブ化 / ワークスペース化:</strong> これらはキーバインドではなく <code>herdr pane move</code> CLI で行います
-      （現状 CLI コマンドをキーに割り当てる仕組みは無いため）。<code>--label</code> / <code>--tab-label</code> で名前を、
-      <code>--no-focus</code> で移動後のフォーカスを制御できます。なおタブ丸ごとをワークスペース化するコマンドは無く、昇格はペイン単位です。
+      <strong>プレフィックス方式:</strong> デフォルトのプレフィックス <code>ctrl+b</code> を押して離してから次のキーを押します（<code>config.toml</code> で変更可、<kbd>prefix</kbd><kbd>?</kbd> で一覧表示）。<br>
+      <strong>ペインのタブ化 / ワークスペース化:</strong> キーバインドは無く、下記の <code>herdr pane move</code> ワンライナー（<code>jq</code> が必要）で行います（昇格はペイン単位）。
     </div>
 
     <div class="grid">
@@ -454,9 +465,9 @@
       <div class="card cli">
         <h3>ペインの昇格（CLI）</h3>
         <table>
-          <tr><td class="action">現在のペインを新規タブへ</td><td class="keys"><code>herdr pane move --current --new-tab</code></td></tr>
-          <tr><td class="action">現在のペインを新規ワークスペースへ</td><td class="keys"><code>herdr pane move --current --new-workspace</code></td></tr>
-          <tr><td class="action">現在のペインを既存タブへ移動</td><td class="keys"><code>herdr pane move --current --tab &lt;id&gt; --split right|down</code></td></tr>
+          <tr><td class="action">現在のペインを新規タブへ</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --new-tab</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
+          <tr><td class="action">現在のペインを新規ワークスペースへ</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --new-workspace</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
+          <tr><td class="action">現在のペインを既存タブへ移動</td><td class="keys"><div class="cmd"><code>herdr pane move "$(herdr pane current | jq -r .result.pane.pane_id)" --tab &lt;id&gt; --split right|down</code><button type="button" class="copy-btn">コピー</button></div></td></tr>
         </table>
       </div>
 
@@ -584,6 +595,36 @@
   // 印刷時はすべて展開
   window.addEventListener("beforeprint", function () {
     document.querySelectorAll("details.tool").forEach(function (d) { d.open = true; });
+  });
+
+  // コピーボタン
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand("copy") ? resolve() : reject(); }
+      catch (e) { reject(e); }
+      document.body.removeChild(ta);
+    });
+  }
+  document.querySelectorAll(".copy-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var code = btn.closest(".cmd").querySelector("code");
+      if (!code) return;
+      copyText(code.textContent).then(function () {
+        btn.textContent = "コピー済";
+        btn.classList.add("copied");
+        setTimeout(function () { btn.textContent = "コピー"; btn.classList.remove("copied"); }, 1200);
+      });
+    });
   });
 </script>
 </body>
