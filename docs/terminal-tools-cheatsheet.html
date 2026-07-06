@@ -411,16 +411,8 @@
     </summary>
     <div class="tool-body">
     <div class="note">
-      <strong>プレフィックス方式:</strong> デフォルトのプレフィックスは <code>ctrl+b</code>。
-      プレフィックスを押して離してから、次のキーを押します（例: <code>ctrl+b</code> → <code>c</code> で新規タブ）。<br>
-      すべてのバインドは <code>config.toml</code> で変更可能。<kbd>prefix</kbd><kbd>?</kbd> で有効なバインド一覧を表示。
-      <code>herdr config reset-keys</code> でデフォルトに戻せます。<br>
-      <strong>ペインのタブ化 / ワークスペース化:</strong> これらはキーバインドではなく <code>herdr pane move</code> CLI で行います
-      （現状 CLI コマンドをキーに割り当てる仕組みは無いため）。対象ペインは位置引数の <code>&lt;pane_id&gt;</code> で指定します。
-      下記コマンドは <code>herdr pane current</code> の出力から現在のペインIDを取り出して埋め込むワンライナーです（<code>jq</code> が必要）。
-      環境変数 <code>$HERDR_PANE_ID</code> でも代用できますが、移動後は値が古くなる点に注意してください。
-      <code>--label</code> / <code>--tab-label</code> で名前を、<code>--no-focus</code> で移動後のフォーカスを制御できます。
-      なおタブ丸ごとをワークスペース化するコマンドは無く、昇格はペイン単位です。
+      <strong>プレフィックス方式:</strong> デフォルトのプレフィックス <code>ctrl+b</code> を押して離してから次のキーを押します（<code>config.toml</code> で変更可、<kbd>prefix</kbd><kbd>?</kbd> で一覧表示）。<br>
+      <strong>ペインのタブ化 / ワークスペース化:</strong> キーバインドは無く、下記の <code>herdr pane move</code> ワンライナー（<code>jq</code> が必要）で行います（昇格はペイン単位）。
     </div>
 
     <div class="grid">
