@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cmux &amp; herdr チートシート</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #191c24;
+    --card2: #1f232d;
+    --border: #2b303b;
+    --text: #e6e8ee;
+    --muted: #9aa2b1;
+    --accent-cmux: #6ea8fe;
+    --accent-herdr: #f0a35e;
+    --accent-lazygit: #63d7a6;
+    --key-bg: #2a2f3a;
+    --key-border: #3a4150;
+    --key-text: #f3f5fa;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --card2: #f7f9fc;
+      --border: #e2e6ee;
+      --text: #1b1f27;
+      --muted: #667085;
+      --accent-cmux: #2563eb;
+      --accent-herdr: #d97706;
+      --accent-lazygit: #0f9d64;
+      --key-bg: #eef1f6;
+      --key-border: #d3d9e4;
+      --key-text: #1b1f27;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; }
+  header.page {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  header.page h1 {
+    font-size: 28px;
+    margin: 0 0 4px;
+    letter-spacing: -0.02em;
+  }
+  header.page p { color: var(--muted); margin: 0; font-size: 14px; }
+  .tools { color: var(--muted); font-size: 13px; text-align: center; margin: 4px 0 28px; }
+  .tools a { color: var(--muted); }
+  .toggle-all {
+    margin: 10px 4px 0;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .toggle-all:hover { border-color: var(--muted); }
+
+  details.tool { margin: 40px 0 0; }
+  .tool-title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 0;
+    padding: 8px 0;
+    padding-left: 26px;
+    position: relative;
+    border-bottom: 2px solid var(--border);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .tool-title::-webkit-details-marker { display: none; }
+  .tool-title::before {
+    content: "▶";
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  details[open] > .tool-title::before { transform: translateY(-50%) rotate(90deg); }
+  .tool-title:hover::before { color: var(--text); }
+  .tool-title h2 { font-size: 22px; margin: 0; }
+  .tool-title .badge {
+    font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px;
+    color: #fff;
+  }
+  #cmux .badge { background: var(--accent-cmux); }
+  #herdr .badge { background: var(--accent-herdr); }
+  #lazygit .badge { background: var(--accent-lazygit); }
+  .tool-title .desc { color: var(--muted); font-size: 13px; }
+  .tool-body { padding-top: 4px; }
+
+  .note {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent-herdr);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0 24px;
+    font-size: 14px;
+  }
+  #cmux .note { border-left-color: var(--accent-cmux); }
+  #lazygit .note { border-left-color: var(--accent-lazygit); }
+  .note code { font-size: 13px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px 16px 8px;
+    break-inside: avoid;
+  }
+  .card h3 {
+    font-size: 15px;
+    margin: 12px 0 8px;
+    color: var(--text);
+  }
+  #cmux .card h3 { color: var(--accent-cmux); }
+  #herdr .card h3 { color: var(--accent-herdr); }
+  #lazygit .card h3 { color: var(--accent-lazygit); }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 5px 0; vertical-align: middle; font-size: 13.5px; border-top: 1px solid var(--border); }
+  tr:first-child td { border-top: none; }
+  td.action { color: var(--muted); padding-right: 8px; }
+  td.keys { text-align: right; white-space: nowrap; }
+
+  kbd {
+    display: inline-block;
+    background: var(--key-bg);
+    border: 1px solid var(--key-border);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    padding: 1px 7px;
+    margin: 1px 0;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--key-text);
+    min-width: 18px;
+    text-align: center;
+  }
+  .sep { color: var(--muted); font-size: 11px; margin: 0 2px; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--key-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 48px; }
+  footer a { color: var(--muted); }
+
+  @media print {
+    body { background: #fff; color: #000; padding: 0; }
+    .card { border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <h1>cmux &amp; herdr &amp; lazygit ショートカットチートシート</h1>
+    <p>ターミナルマルチプレクサ &amp; Git TUI</p>
+  </header>
+  <p class="tools">最終更新: 2026-07-06 ／ 出典:
+    <a href="https://cmux.com/docs/keyboard-shortcuts">cmux</a> ・
+    <a href="https://herdr.dev/docs/keyboard/">herdr</a> ・
+    <a href="https://github.com/jesseduffield/lazygit/blob/master/docs/keybindings/Keybindings_en.md">lazygit</a>
+    <br>
+    <button type="button" class="toggle-all" data-action="open">すべて展開</button>
+    <button type="button" class="toggle-all" data-action="close">すべて折りたたむ</button>
+  </p>
+
+  <!-- ============ cmux ============ -->
+  <details id="cmux" class="tool" open>
+    <summary class="tool-title">
+      <span class="badge">cmux</span>
+      <h2>cmux</h2>
+      <span class="desc">Ghostty ベースの macOS ネイティブターミナル。プレフィックス不要のネイティブショートカット。</span>
+    </summary>
+    <div class="tool-body">
+    <div class="note">
+      すべてのショートカットは <strong>設定</strong> または <code>~/.config/cmux/cmux.json</code> でカスタマイズ可能。
+      ターミナルのキーバインドは Ghostty の設定（<code>~/.config/ghostty/config</code>）を参照します。
+      記号: <kbd>⌘</kbd>=Command <kbd>⌥</kbd>=Option <kbd>⌃</kbd>=Control <kbd>⇧</kbd>=Shift
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>アプリ / ウィンドウ</h3>
+        <table>
+          <tr><td class="action">設定</td><td class="keys"><kbd>⌘</kbd><kbd>,</kbd></td></tr>
+          <tr><td class="action">全ウィンドウ表示/非表示（システム全体）</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>,</kbd></td></tr>
+          <tr><td class="action">グローバル検索（システム全体）</td><td class="keys"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>.</kbd></td></tr>
+          <tr><td class="action">コマンドパレット</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>F</kbd></td></tr>
+          <tr><td class="action">パレット: 次の候補</td><td class="keys"><kbd>⌃</kbd><kbd>N</kbd></td></tr>
+          <tr><td class="action">パレット: 前の候補</td><td class="keys"><kbd>⌃</kbd><kbd>P</kbd></td></tr>
+          <tr><td class="action">新規ウィンドウ</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>N</kbd></td></tr>
+          <tr><td class="action">ウィンドウを閉じる</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>W</kbd></td></tr>
+          <tr><td class="action">フルスクリーン切替</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>F</kbd></td></tr>
+          <tr><td class="action">前のセッションを再開</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>O</kbd></td></tr>
+          <tr><td class="action">cmux を終了</td><td class="keys"><kbd>⌘</kbd><kbd>Q</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>ワークスペース</h3>
+        <table>
+          <tr><td class="action">左サイドバー切替</td><td class="keys"><kbd>⌘</kbd><kbd>B</kbd></td></tr>
+          <tr><td class="action">右サイドバー切替</td><td class="keys"><kbd>⌘</kbd><kbd>⌥</kbd><kbd>B</kbd></td></tr>
+          <tr><td class="action">新規ワークスペース</td><td class="keys"><kbd>⌘</kbd><kbd>N</kbd></td></tr>
+          <tr><td class="action">新規ブラウザワークスペース</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>N</kbd></td></tr>
+          <tr><td class="action">フォルダを開く</td><td class="keys"><kbd>⌘</kbd><kbd>O</kbd></td></tr>
+          <tr><td class="action">ワークスペース切替器</td><td class="keys"><kbd>⌘</kbd><kbd>P</kbd></td></tr>
+          <tr><td class="action">次のワークスペース</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>]</kbd></td></tr>
+          <tr><td class="action">前のワークスペース</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>[</kbd></td></tr>
+          <tr><td class="action">フォーカスを戻す</td><td class="keys"><kbd>⌘</kbd><kbd>[</kbd></td></tr>
+          <tr><td class="action">フォーカスを進める</td><td class="keys"><kbd>⌘</kbd><kbd>]</kbd></td></tr>
+          <tr><td class="action">ワークスペース 1〜9 選択</td><td class="keys"><kbd>⌘</kbd><kbd>1</kbd><span class="sep">〜</span><kbd>9</kbd></td></tr>
+          <tr><td class="action">ワークスペース名変更</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>R</kbd></td></tr>
+          <tr><td class="action">説明を編集</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>E</kbd></td></tr>
+          <tr><td class="action">新規グループ作成</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>G</kbd></td></tr>
+          <tr><td class="action">選択をグループ化</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>G</kbd></td></tr>
+          <tr><td class="action">グループ折り畳み/展開</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>.</kbd></td></tr>
+          <tr><td class="action">右サイドバーのフォーカス切替</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>E</kbd></td></tr>
+          <tr><td class="action">サイドバー行を移動</td><td class="keys"><kbd>J</kbd><kbd>K</kbd><span class="sep">/</span><kbd>H</kbd><kbd>L</kbd></td></tr>
+          <tr><td class="action">開く / フォルダ切替</td><td class="keys"><kbd>↩</kbd><span class="sep">/</span><kbd>⌘</kbd><kbd>↓</kbd></td></tr>
+          <tr><td class="action">ワークスペースを閉じる</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>W</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>サーフェス（タブ）</h3>
+        <table>
+          <tr><td class="action">新規サーフェス</td><td class="keys"><kbd>⌘</kbd><kbd>T</kbd></td></tr>
+          <tr><td class="action">次のサーフェス</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>]</kbd></td></tr>
+          <tr><td class="action">前のサーフェス</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>[</kbd></td></tr>
+          <tr><td class="action">サーフェス 1〜9 選択</td><td class="keys"><kbd>⌃</kbd><kbd>1</kbd><span class="sep">〜</span><kbd>9</kbd></td></tr>
+          <tr><td class="action">タブ名変更</td><td class="keys"><kbd>⌘</kbd><kbd>R</kbd></td></tr>
+          <tr><td class="action">タブを閉じる</td><td class="keys"><kbd>⌘</kbd><kbd>W</kbd></td></tr>
+          <tr><td class="action">ペイン内の他タブを閉じる</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>T</kbd></td></tr>
+          <tr><td class="action">閉じたタブを再度開く</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>T</kbd></td></tr>
+          <tr><td class="action">ターミナルコピーモード切替</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>M</kbd></td></tr>
+          <tr><td class="action">画面クリア（履歴は保持）</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>K</kbd></td></tr>
+          <tr><td class="action">ターミナル/入力欄のフォーカス切替</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>A</kbd></td></tr>
+          <tr><td class="action">入力欄の送信動作を切替</td><td class="keys"><kbd>⇧</kbd><kbd>Tab</kbd></td></tr>
+          <tr><td class="action">入力欄にファイル添付</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>A</kbd></td></tr>
+          <tr><td class="action">ファイルプレビューを保存</td><td class="keys"><kbd>⌘</kbd><kbd>S</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>分割ペイン</h3>
+        <table>
+          <tr><td class="action">左のペインへフォーカス</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>←</kbd></td></tr>
+          <tr><td class="action">右のペインへフォーカス</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>→</kbd></td></tr>
+          <tr><td class="action">上のペインへフォーカス</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>↑</kbd></td></tr>
+          <tr><td class="action">下のペインへフォーカス</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>↓</kbd></td></tr>
+          <tr><td class="action">右に分割</td><td class="keys"><kbd>⌘</kbd><kbd>D</kbd></td></tr>
+          <tr><td class="action">下に分割</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>D</kbd></td></tr>
+          <tr><td class="action">ブラウザを右に分割</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>D</kbd></td></tr>
+          <tr><td class="action">ブラウザを下に分割</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>D</kbd></td></tr>
+          <tr><td class="action">ペインズーム切替</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>↩</kbd></td></tr>
+          <tr><td class="action">分割サイズを均等化</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>=</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>キャンバスレイアウト</h3>
+        <table>
+          <tr><td class="action">キャンバスレイアウト切替</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>C</kbd></td></tr>
+          <tr><td class="action">フォーカス中のペインを表示</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>R</kbd></td></tr>
+          <tr><td class="action">概観ズーム切替</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>O</kbd></td></tr>
+          <tr><td class="action">ズームイン</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>=</kbd></td></tr>
+          <tr><td class="action">ズームアウト</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>-</kbd></td></tr>
+          <tr><td class="action">実寸表示</td><td class="keys"><kbd>⌘</kbd><kbd>0</kbd></td></tr>
+          <tr><td class="action">ペインをグリッド整列</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>T</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>ブラウザ</h3>
+        <table>
+          <tr><td class="action">ブラウザを開く</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>L</kbd></td></tr>
+          <tr><td class="action">アドレスバーにフォーカス</td><td class="keys"><kbd>⌘</kbd><kbd>L</kbd></td></tr>
+          <tr><td class="action">戻る</td><td class="keys"><kbd>⌘</kbd><kbd>[</kbd></td></tr>
+          <tr><td class="action">進む</td><td class="keys"><kbd>⌘</kbd><kbd>]</kbd></td></tr>
+          <tr><td class="action">ページ再読込</td><td class="keys"><kbd>⌘</kbd><kbd>R</kbd></td></tr>
+          <tr><td class="action">ハードリフレッシュ</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>R</kbd></td></tr>
+          <tr><td class="action">ズームイン</td><td class="keys"><kbd>⌘</kbd><kbd>=</kbd></td></tr>
+          <tr><td class="action">ズームアウト</td><td class="keys"><kbd>⌘</kbd><kbd>-</kbd></td></tr>
+          <tr><td class="action">実寸表示</td><td class="keys"><kbd>⌘</kbd><kbd>0</kbd></td></tr>
+          <tr><td class="action">開発者ツール切替</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>I</kbd></td></tr>
+          <tr><td class="action">JavaScript コンソール表示</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>C</kbd></td></tr>
+          <tr><td class="action">ブラウザフォーカスモード</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>↩</kbd></td></tr>
+          <tr><td class="action">React Grab 切替</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>G</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Diff ビューア</h3>
+        <table>
+          <tr><td class="action">Diff ビューアを開く</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>D</kbd></td></tr>
+          <tr><td class="action">Diff を下にスクロール</td><td class="keys"><kbd>J</kbd></td></tr>
+          <tr><td class="action">Diff を上にスクロール</td><td class="keys"><kbd>K</kbd></td></tr>
+          <tr><td class="action">最下部へスクロール</td><td class="keys"><kbd>⇧</kbd><kbd>G</kbd></td></tr>
+          <tr><td class="action">最上部へスクロール</td><td class="keys"><kbd>G</kbd><kbd>G</kbd></td></tr>
+          <tr><td class="action">Diff ファイル検索</td><td class="keys"><kbd>/</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>検索（Find）</h3>
+        <table>
+          <tr><td class="action">検索</td><td class="keys"><kbd>⌘</kbd><kbd>F</kbd></td></tr>
+          <tr><td class="action">ディレクトリ内検索</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>F</kbd></td></tr>
+          <tr><td class="action">次を検索</td><td class="keys"><kbd>⌘</kbd><kbd>G</kbd></td></tr>
+          <tr><td class="action">前を検索</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd></td></tr>
+          <tr><td class="action">検索バーを隠す</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>F</kbd></td></tr>
+          <tr><td class="action">選択を検索語に使用</td><td class="keys"><kbd>⌘</kbd><kbd>E</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>通知</h3>
+        <table>
+          <tr><td class="action">通知を表示</td><td class="keys"><kbd>⌘</kbd><kbd>I</kbd></td></tr>
+          <tr><td class="action">最新の未読へジャンプ</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>U</kbd></td></tr>
+          <tr><td class="action">現在の項目の未読切替</td><td class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>U</kbd></td></tr>
+          <tr><td class="action">最古の未読にして次へ</td><td class="keys"><kbd>⌃</kbd><kbd>⌘</kbd><kbd>U</kbd></td></tr>
+          <tr><td class="action">フォーカス中のパネルを点滅</td><td class="keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>H</kbd></td></tr>
+        </table>
+      </div>
+    </div>
+    </div>
+  </details>
+
+  <!-- ============ herdr ============ -->
+  <details id="herdr" class="tool" open>
+    <summary class="tool-title">
+      <span class="badge">herdr</span>
+      <h2>herdr</h2>
+      <span class="desc">ターミナル内で動く agent multiplexer。tmux 風のプレフィックス方式。マウス操作も可能。</span>
+    </summary>
+    <div class="tool-body">
+    <div class="note">
+      <strong>プレフィックス方式:</strong> デフォルトのプレフィックスは <code>ctrl+b</code>。
+      プレフィックスを押して離してから、次のキーを押します（例: <code>ctrl+b</code> → <code>c</code> で新規タブ）。<br>
+      すべてのバインドは <code>config.toml</code> で変更可能。<kbd>prefix</kbd><kbd>?</kbd> で有効なバインド一覧を表示。
+      <code>herdr config reset-keys</code> でデフォルトに戻せます。
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>セッション / 全体</h3>
+        <table>
+          <tr><td class="action">セッションをデタッチ</td><td class="keys"><kbd>prefix</kbd><kbd>q</kbd></td></tr>
+          <tr><td class="action">全バインド一覧を表示</td><td class="keys"><kbd>prefix</kbd><kbd>?</kbd></td></tr>
+          <tr><td class="action">Goto ピッカー</td><td class="keys"><kbd>prefix</kbd><kbd>g</kbd></td></tr>
+          <tr><td class="action">サイドバー切替</td><td class="keys"><kbd>prefix</kbd><kbd>b</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>ワークスペース</h3>
+        <table>
+          <tr><td class="action">ワークスペースナビゲーション</td><td class="keys"><kbd>prefix</kbd><kbd>w</kbd></td></tr>
+          <tr><td class="action">新規ワークスペース</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>n</kbd></td></tr>
+          <tr><td class="action">ワークスペース名変更</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>w</kbd></td></tr>
+          <tr><td class="action">ワークスペースを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>d</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>タブ制御</h3>
+        <table>
+          <tr><td class="action">新規タブ</td><td class="keys"><kbd>prefix</kbd><kbd>c</kbd></td></tr>
+          <tr><td class="action">次のタブ</td><td class="keys"><kbd>prefix</kbd><kbd>n</kbd></td></tr>
+          <tr><td class="action">前のタブ</td><td class="keys"><kbd>prefix</kbd><kbd>p</kbd></td></tr>
+          <tr><td class="action">タブ 1〜9 へジャンプ</td><td class="keys"><kbd>prefix</kbd><kbd>1</kbd><span class="sep">〜</span><kbd>9</kbd></td></tr>
+          <tr><td class="action">タブ名変更</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>t</kbd></td></tr>
+          <tr><td class="action">タブを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>x</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>ペイン管理</h3>
+        <table>
+          <tr><td class="action">右に分割</td><td class="keys"><kbd>prefix</kbd><kbd>v</kbd></td></tr>
+          <tr><td class="action">下に分割</td><td class="keys"><kbd>prefix</kbd><kbd>-</kbd></td></tr>
+          <tr><td class="action">ペイン間を移動</td><td class="keys"><kbd>prefix</kbd><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></td></tr>
+          <tr><td class="action">ペインを入替</td><td class="keys"><kbd>prefix</kbd><kbd>⇧</kbd><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></td></tr>
+          <tr><td class="action">ペインをズーム</td><td class="keys"><kbd>prefix</kbd><kbd>z</kbd></td></tr>
+          <tr><td class="action">ペインを閉じる</td><td class="keys"><kbd>prefix</kbd><kbd>x</kbd></td></tr>
+          <tr><td class="action">リサイズモード</td><td class="keys"><kbd>prefix</kbd><kbd>r</kbd></td></tr>
+          <tr><td class="action">コピーモード</td><td class="keys"><kbd>prefix</kbd><kbd>[</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>コピーモード（<kbd>prefix</kbd><kbd>[</kbd> で開始）</h3>
+        <table>
+          <tr><td class="action">移動</td><td class="keys"><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></td></tr>
+          <tr><td class="action">単語移動</td><td class="keys"><kbd>w</kbd><kbd>b</kbd><kbd>e</kbd></td></tr>
+          <tr><td class="action">段落移動</td><td class="keys"><kbd>{</kbd><kbd>}</kbd></td></tr>
+          <tr><td class="action">選択開始</td><td class="keys"><kbd>v</kbd><span class="sep">/</span><kbd>Space</kbd></td></tr>
+          <tr><td class="action">コピー</td><td class="keys"><kbd>y</kbd><span class="sep">/</span><kbd>Enter</kbd></td></tr>
+          <tr><td class="action">終了</td><td class="keys"><kbd>q</kbd><span class="sep">/</span><kbd>Esc</kbd></td></tr>
+        </table>
+      </div>
+    </div>
+    </div>
+  </details>
+
+  <!-- ============ lazygit ============ -->
+  <details id="lazygit" class="tool" open>
+    <summary class="tool-title">
+      <span class="badge">lazygit</span>
+      <h2>lazygit</h2>
+      <span class="desc">ターミナル用の Git TUI。パネル間を <kbd>Tab</kbd> / 数字キーで移動し、選択項目に対しキーを押す。</span>
+    </summary>
+    <div class="tool-body">
+    <div class="note">
+      パネル（Files / Branches / Commits / Stash など）を選択し、対象項目にカーソルを合わせてキーを押します。
+      <kbd>?</kbd> でその画面のキーバインド一覧、<kbd>Esc</kbd> でキャンセル/戻る。
+      キーバインドは <code>~/.config/lazygit/config.yml</code> でカスタマイズ可能。
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>グローバル / 全体操作</h3>
+        <table>
+          <tr><td class="action">キーバインド一覧メニュー</td><td class="keys"><kbd>?</kbd></td></tr>
+          <tr><td class="action">プッシュ</td><td class="keys"><kbd>⇧</kbd><kbd>P</kbd></td></tr>
+          <tr><td class="action">プル</td><td class="keys"><kbd>p</kbd></td></tr>
+          <tr><td class="action">状態をリフレッシュ</td><td class="keys"><kbd>⇧</kbd><kbd>R</kbd></td></tr>
+          <tr><td class="action">マージ/リベースのオプション</td><td class="keys"><kbd>m</kbd></td></tr>
+          <tr><td class="action">元に戻す（reflog）</td><td class="keys"><kbd>z</kbd></td></tr>
+          <tr><td class="action">やり直し</td><td class="keys"><kbd>⇧</kbd><kbd>Z</kbd></td></tr>
+          <tr><td class="action">最近のリポジトリへ切替</td><td class="keys"><kbd>⌃</kbd><kbd>R</kbd></td></tr>
+          <tr><td class="action">終了</td><td class="keys"><kbd>q</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>パネル移動 / リスト操作</h3>
+        <table>
+          <tr><td class="action">パネル間を移動</td><td class="keys"><kbd>Tab</kbd></td></tr>
+          <tr><td class="action">メインビューにフォーカス</td><td class="keys"><kbd>0</kbd></td></tr>
+          <tr><td class="action">前/次のタブ</td><td class="keys"><kbd>[</kbd><span class="sep">/</span><kbd>]</kbd></td></tr>
+          <tr><td class="action">前/次のページ</td><td class="keys"><kbd>,</kbd><span class="sep">/</span><kbd>.</kbd></td></tr>
+          <tr><td class="action">先頭/末尾へ</td><td class="keys"><kbd>&lt;</kbd><span class="sep">/</span><kbd>&gt;</kbd></td></tr>
+          <tr><td class="action">テキスト検索</td><td class="keys"><kbd>/</kbd></td></tr>
+          <tr><td class="action">範囲選択の切替</td><td class="keys"><kbd>v</kbd></td></tr>
+          <tr><td class="action">項目をクリップボードにコピー</td><td class="keys"><kbd>⌃</kbd><kbd>O</kbd></td></tr>
+          <tr><td class="action">キャンセル / 閉じる</td><td class="keys"><kbd>Esc</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Files パネル</h3>
+        <table>
+          <tr><td class="action">ステージ/アンステージ切替</td><td class="keys"><kbd>Space</kbd></td></tr>
+          <tr><td class="action">全ファイルをステージ/解除</td><td class="keys"><kbd>a</kbd></td></tr>
+          <tr><td class="action">コミット</td><td class="keys"><kbd>c</kbd></td></tr>
+          <tr><td class="action">直前のコミットに追加（amend）</td><td class="keys"><kbd>⇧</kbd><kbd>A</kbd></td></tr>
+          <tr><td class="action">変更を破棄</td><td class="keys"><kbd>d</kbd></td></tr>
+          <tr><td class="action">全変更を stash</td><td class="keys"><kbd>s</kbd></td></tr>
+          <tr><td class="action">ステージングビュー / 折り畳み</td><td class="keys"><kbd>Enter</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Branches パネル</h3>
+        <table>
+          <tr><td class="action">チェックアウト</td><td class="keys"><kbd>Space</kbd></td></tr>
+          <tr><td class="action">新規ブランチ作成</td><td class="keys"><kbd>n</kbd></td></tr>
+          <tr><td class="action">ブランチ削除</td><td class="keys"><kbd>d</kbd></td></tr>
+          <tr><td class="action">選択ブランチ上にリベース</td><td class="keys"><kbd>r</kbd></td></tr>
+          <tr><td class="action">マージのオプション</td><td class="keys"><kbd>⇧</kbd><kbd>M</kbd></td></tr>
+          <tr><td class="action">直前のブランチへ切替</td><td class="keys"><kbd>-</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Commits パネル</h3>
+        <table>
+          <tr><td class="action">下のコミットへ squash</td><td class="keys"><kbd>s</kbd></td></tr>
+          <tr><td class="action">fixup（メッセージ破棄）</td><td class="keys"><kbd>f</kbd></td></tr>
+          <tr><td class="action">メッセージを reword</td><td class="keys"><kbd>r</kbd></td></tr>
+          <tr><td class="action">コミットを drop</td><td class="keys"><kbd>d</kbd></td></tr>
+          <tr><td class="action">対話的リベース開始</td><td class="keys"><kbd>e</kbd></td></tr>
+          <tr><td class="action">ステージ内容で amend</td><td class="keys"><kbd>⇧</kbd><kbd>A</kbd></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Stash パネル</h3>
+        <table>
+          <tr><td class="action">stash を適用</td><td class="keys"><kbd>Space</kbd></td></tr>
+          <tr><td class="action">pop（適用して削除）</td><td class="keys"><kbd>g</kbd></td></tr>
+          <tr><td class="action">stash を削除</td><td class="keys"><kbd>d</kbd></td></tr>
+          <tr><td class="action">stash から新規ブランチ</td><td class="keys"><kbd>n</kbd></td></tr>
+        </table>
+      </div>
+    </div>
+    </div>
+  </details>
+
+  <footer>
+    作成: Claude Code ／ ショートカットは各ツールの公式ドキュメントより取得。バージョンにより変わる可能性があります。
+  </footer>
+</div>
+<script>
+  document.querySelectorAll(".toggle-all").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var open = btn.dataset.action === "open";
+      document.querySelectorAll("details.tool").forEach(function (d) { d.open = open; });
+    });
+  });
+  // 印刷時はすべて展開
+  window.addEventListener("beforeprint", function () {
+    document.querySelectorAll("details.tool").forEach(function (d) { d.open = true; });
+  });
+</script>
+</body>
+</html>
