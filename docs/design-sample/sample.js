@@ -6,6 +6,10 @@ const concepts = {
   cyber: ["H", "Cyber Terminal", "SCENARIO DATABASE / ONLINE"],
   bento: ["I", "Skyline Bento", "みんなの物語を、見やすくひとつに。"],
   chromatic: ["J", "Chromatic Minimal", "PLAY SOMETHING NEW."],
+  graphite: ["K", "Graphite Ledger", "記録をめくり、物語を選ぶ。"],
+  obsidian: ["L", "Obsidian Glass", "暗闇の奥に、物語が浮かぶ。"],
+  mono: ["M", "Mono Brutal", "READ. CHOOSE. PLAY."],
+  carbon: ["N", "Carbon Studio", "次の卓を、セットアップする。"],
 };
 
 const scenarios = [
