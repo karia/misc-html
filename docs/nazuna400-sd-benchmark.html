@@ -13,7 +13,6 @@
     --muted: #9aa2b1;
     --accent: #6ea8fe;
     --old: #8b93a3;
-    --good: #63d7a6;
     --bad: #f08a7e;
   }
   @media (prefers-color-scheme: light) {
@@ -25,7 +24,6 @@
       --muted: #667085;
       --accent: #2563eb;
       --old: #98a2b3;
-      --good: #0f9d64;
       --bad: #c2410c;
     }
   }
@@ -49,7 +47,7 @@
     padding: 16px 18px;
     margin: 0 0 12px;
   }
-  .verdict { border-left: 4px solid var(--bad); }
+  .verdict { border-left: 4px solid var(--accent); }
   .verdict p { margin: 0 0 8px; }
   .verdict p:last-child { margin: 0; }
   .scroll { overflow-x: auto; }
@@ -58,9 +56,8 @@
   th:first-child, td:first-child { text-align: left; }
   th { color: var(--muted); font-weight: 600; font-size: 12px; }
   tr:last-child td { border-bottom: none; }
-  td.num, .num { font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums; }
   .worse { color: var(--bad); font-weight: 600; }
-  .better { color: var(--good); font-weight: 600; }
   .bars { display: grid; gap: 14px; }
   .bar-row .label { font-size: 13px; margin-bottom: 4px; }
   .bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
@@ -73,6 +70,17 @@
   dt { color: var(--muted); }
   dd { margin: 0; }
   ul.points { margin: 0; padding-left: 20px; font-size: 14px; }
+  ol.timeline { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--border); }
+  ol.timeline li { position: relative; padding: 0 0 14px 18px; font-size: 14px; }
+  ol.timeline li:last-child { padding-bottom: 0; }
+  ol.timeline li::before {
+    content: ""; position: absolute; left: -6px; top: 7px;
+    width: 10px; height: 10px; border-radius: 50%; background: var(--old);
+  }
+  ol.timeline li.fault::before { background: var(--bad); }
+  ol.timeline li.temp::before { background: var(--accent); }
+  ol.timeline li.next::before { background: var(--card); border: 2px solid var(--muted); width: 6px; height: 6px; }
+  ol.timeline time { display: block; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
   code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
   pre { margin: 0; overflow-x: auto; font-size: 12px; line-height: 1.5; }
   footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
@@ -82,30 +90,77 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>nazuna400 microSD交換後のベンチマーク</h1>
-    <p>Raspberry Pi 400 / 測定日 2026-11-19 / 交換日 2026-11-01</p>
+    <h1>nazuna400 microSD障害と一時カードの性能</h1>
+    <p>Raspberry Pi 400 / 対象期間 2026-08-30〜2026-11-19 / 交換品への切り替え前の記録</p>
   </header>
 
-  <h2>結論</h2>
+  <h2>概要</h2>
   <div class="card verdict">
-    <p>交換による速度の向上は確認できなかった。実運用のI/Oで比べると、書き込み1回あたりの待ち時間は中央値で約8倍に伸びている。</p>
-    <p>交換後17日間、カーネルログにI/Oエラーは出ていない。交換の効果は速度ではなく信頼性の回復にある。</p>
-    <p class="note">交換後はjournalの永続化を有効にしたため、書き込みが小さく頻繁になっている。比較条件は揃っておらず、悪化分のすべてがカードの差とは限らない。</p>
+    <p>2026-11-01にmicroSDカードが故障し、手持ちの古いカードを一時的に使っている。このページは、交換品へ切り替える前までの経緯と、一時カードの性能をまとめたもの。</p>
+    <p>一時カードでは、2026-11-01に移行してから2026-11-19までI/Oエラーが出ていない。一方で書き込みは遅く、故障前の旧カードと比べて順次書き込みは約半分、4KiBランダム書き込みのIOPSは半分以下にとどまる。</p>
+    <p class="note">交換品へ切り替えた後に、同じ条件で測定して追記する。</p>
   </div>
 
-  <h2>測定環境</h2>
+  <h2>経緯</h2>
   <div class="card">
-    <dl>
-      <dt>本体</dt><dd>Raspberry Pi 400 Rev 1.0</dd>
-      <dt>OS</dt><dd>Raspberry Pi OS Trixie（kernel 6.18.50+rpt-rpi-v8）</dd>
-      <dt>新カード</dt><dd>SanDisk SL128（119.1GiB、製造 2014-12）</dd>
-      <dt>バスモード</dt><dd>UHS-I DDR50（理論上限 約50MB/s）</dd>
-      <dt>ファイルシステム</dt><dd>ext4、使用率17%</dd>
-      <dt>電源</dt><dd><code>throttled=0x0</code>（スロットリングなし）</dd>
-    </dl>
+    <ol class="timeline">
+      <li><time>2026-08-30</time>故障前の旧カードで速度を測定する（結果は後述）。</li>
+      <li class="fault"><time>2026-11-01 01時ごろ</time>前回のシャットダウンが「shutdown failed」と表示されて止まっていたことが分かる。</li>
+      <li class="fault"><time>2026-11-01 02:58</time>起動開始から約5秒でログが途切れる起動が4回続く。</li>
+      <li class="fault"><time>2026-11-01 03時台</time>ようやく起動した回のカーネルログに、読み込みの<code>I/O error</code>が2件、<code>mmc0: Card stuck being busy!</code>が3件出る。2件のエラーは約320KBしか離れていない領域で起きている。自動ログインもタイムアウトする。</li>
+      <li class="fault"><time>2026-11-01 04時ごろ</time>再起動が途中で止まって画面が暗転し、SDカードを認識しなくなる。長時間放置すると起動するが、起動してもI/Oエラーが出る。</li>
+      <li class="temp"><time>2026-11-01 04時ごろ</time>別のmicroSDカード（一時カード）にOSを書き込み、移行の準備を始める。</li>
+      <li class="temp"><time>2026-11-01 19:09ごろ</time>一時カードで初めて起動し、データの移行と再セットアップを始める。</li>
+      <li class="temp"><time>2026-11-01 19:35</time>一時カードで速度を測定する（QD1）。</li>
+      <li class="temp"><time>2026-11-01 23:16</time>移行作業を終えて再起動する。この起動のまま運用を続ける。</li>
+      <li class="temp"><time>2026-11-19</time>一時カードで改めて速度を測定する（本ページの主な測定）。この時点でも、カーネルログにI/Oエラーは出ていない。</li>
+      <li class="next"><time>次の作業</time>交換品のmicroSDカードへ切り替え、同じ条件で測定する。</li>
+    </ol>
+    <p class="note" style="margin-top:12px">11-01未明の時刻はNTPで同期する前の記録を含むため、目安である。</p>
   </div>
 
-  <h2>新カードのベンチマーク</h2>
+  <h2>カード</h2>
+  <div class="card scroll">
+    <table>
+      <thead>
+        <tr><th></th><th>旧カード（故障）</th><th>一時カード（使用中）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>型番の表示</td><td>SPCC</td><td>SL128（SanDisk）</td></tr>
+        <tr><td>容量</td><td class="num">116 GiB</td><td class="num">119 GiB</td></tr>
+        <tr><td>製造年月</td><td class="num">2025-07</td><td class="num">2014-12</td></tr>
+        <tr><td>バスモード</td><td>UHS-I DDR50</td><td>UHS-I DDR50</td></tr>
+        <tr><td>累積書き込み</td><td class="num">約165 GB（故障時）</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="points">
+    <li>電源は旧カードの故障時も一時カードでも<code>throttled=0x0</code>で、電圧低下の記録はない。</li>
+    <li>一時カードに替えてからエラーが止まったため、原因はカード側の可能性が高い。ただし旧カードを別の機器で検証していないので、本体のSDスロットの不具合も否定できていない。</li>
+  </ul>
+
+  <h2>速度の測定結果</h2>
+  <div class="card scroll">
+    <table>
+      <thead>
+        <tr><th>テスト</th><th>旧カード<br>08-30</th><th>一時カード<br>11-01</th><th>一時カード<br>11-19</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>順次読み込み</td><td class="num">—</td><td class="num">33.6 MiB/s</td><td class="num">43.0 MiB/s</td></tr>
+        <tr><td>順次書き込み</td><td class="num">27.0 MiB/s</td><td class="num">10.7 MiB/s</td><td class="num">14.8 MiB/s</td></tr>
+        <tr><td>4KiBランダム読み込み</td><td class="num">—</td><td class="num">787 IOPS</td><td class="num">976 IOPS</td></tr>
+        <tr><td>4KiBランダム書き込み</td><td class="num">985 IOPS</td><td class="num">336 IOPS</td><td class="num">442 IOPS</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="points">
+    <li>旧カードの値は、故障の2か月前に測った結果の一部である。測定条件の記録が残っておらず、読み込みの値もない。参考値として扱う。</li>
+    <li>11-01は同期I/O（psync）でキュー深度1、11-19はlibaio（順次はキュー深度4）で測った。11-19の値が高いのは主にこの条件差による。</li>
+    <li>順次読み込みはDDR50の上限（約50MB/s）近くまで出ている。</li>
+    <li>参考までに、A1規格の最低値は読み込み1,500 IOPS、書き込み500 IOPSである。一時カードはどちらも届かない。</li>
+  </ul>
+
+  <h3 style="font-size:15px;margin:24px 0 8px">一時カードの詳細（2026-11-19）</h3>
   <div class="card scroll">
     <table>
       <thead>
@@ -121,16 +176,12 @@
       </tbody>
     </table>
   </div>
-  <ul class="points">
-    <li>順次読み込みはDDR50の上限近くまで出ており、バスが律速している。</li>
-    <li>ランダムI/OはQD1とQD16でIOPSが変わらない。このカードとコントローラの組み合わせでは、キューを深くしても並列に処理されない。</li>
-    <li>参考までに、A1規格の最低値は読み込み1,500 IOPS、書き込み500 IOPSである。新カードはどちらも届かない。</li>
-  </ul>
+  <p class="note">ランダムI/OはQD1とQD16でIOPSが変わらない。このカードとコントローラの組み合わせでは、キューを深くしても並列に処理されない。</p>
 
-  <h2>旧カードとの比較（実運用のI/O）</h2>
-  <p class="note" style="margin-bottom:12px">旧カードのベンチマークは残っていないため、Prometheusのnode_exporterが記録した<code>mmcblk0</code>の1時間平均を比べる。旧カードは2026-10-10〜11-01、新カードは移行作業を終えた2026-11-02〜11-18の値。</p>
+  <h2>実運用のI/O（Prometheus）</h2>
+  <p class="note" style="margin-bottom:12px">node_exporterが記録した<code>mmcblk0</code>の1時間平均を比べる。旧カードは2026-10-10 00:00〜11-01 19:00、一時カードは移行作業を終えた後の2026-11-03 00:00〜11-18 23:00の値（いずれもJST）。旧カードの期間は一時カードの初回起動より前で切っている。また、この期間の大半は故障前である。</p>
   <div class="card">
-    <div class="legend"><span><i style="background:var(--old)"></i>旧カード</span><span><i style="background:var(--accent)"></i>新カード</span></div>
+    <div class="legend"><span><i style="background:var(--old)"></i>旧カード</span><span><i style="background:var(--accent)"></i>一時カード</span></div>
     <div class="bars">
       <div class="bar-row">
         <div class="label">書き込み1回あたりの待ち時間（中央値）</div>
@@ -147,7 +198,7 @@
   <div class="card scroll">
     <table>
       <thead>
-        <tr><th>指標（1時間平均）</th><th>旧 中央値</th><th>新 中央値</th><th>旧 p95</th><th>新 p95</th></tr>
+        <tr><th>指標（1時間平均）</th><th>旧 中央値</th><th>一時 中央値</th><th>旧 p95</th><th>一時 p95</th></tr>
       </thead>
       <tbody>
         <tr><td>書き込み待ち時間</td><td class="num">4.82 ms</td><td class="num worse">39.1 ms</td><td class="num">58.1 ms</td><td class="num worse">163 ms</td></tr>
@@ -161,12 +212,13 @@
     </table>
   </div>
   <ul class="points">
-    <li>新カードは書き込みが約2.8倍の頻度で、1回あたり約半分のサイズになっている。journalの永続化が主な原因とみられる。</li>
-    <li>書き込みが小さくなったにもかかわらず、1回あたりの待ち時間は伸びている。小さい書き込みの処理は旧カードより遅いと考えられる。</li>
+    <li>書き込み回数と平均サイズは、負荷の傾向を見るための値なので中央値だけを載せている。</li>
+    <li>移行のときにjournalの永続化を有効にしたため、一時カードでは書き込みが約2.8倍の頻度になり、1回あたりのサイズは約半分になった。</li>
+    <li>待ち時間にはキューで待った時間も含まれる。書き込みの頻度が上がった分の影響と、カード自体の遅さの影響は、このデータからは切り分けられない。</li>
     <li>ビジー率は1%前後にとどまる。通常の用途で体感できるほどの負荷ではない。</li>
   </ul>
 
-  <h2>測定方法</h2>
+  <h2>測定方法（2026-11-19）</h2>
   <div class="card">
     <p class="note" style="margin-bottom:8px">fio 3.39で、ルートファイルシステム上の1GiBのファイルに対して実行した。各テストは20秒（ウォームアップ2秒を除く）。</p>
 <pre><code>[global]
@@ -178,13 +230,13 @@ time_based
 ramp_time=2
 stonewall
 # 以下は各ジョブの設定を1行に要約したもの
-[seq-read-1m]      rw=read      bs=1m iodepth=4
-[seq-write-1m]     rw=write     bs=1m iodepth=4
-[rand-read-4k-qd1] rw=randread  bs=4k iodepth=1
-[rand-write-4k-qd1] rw=randwrite bs=4k iodepth=1
-[rand-read-4k-qd16] rw=randread  bs=4k iodepth=16
-[rand-write-4k-qd16] rw=randwrite bs=4k iodepth=16</code></pre>
-    <p class="note" style="margin-top:8px">旧カードとの比較には、<code>node_disk_*_time_seconds_total</code>を完了回数で割った値を1時間ごとに求め、期間ごとの中央値とp95をとった。</p>
+[seq-read-1m]         rw=read       bs=1m  iodepth=4
+[seq-write-1m]        rw=write      bs=1m  iodepth=4
+[rand-read-4k-qd1]    rw=randread   bs=4k  iodepth=1
+[rand-write-4k-qd1]   rw=randwrite  bs=4k  iodepth=1
+[rand-read-4k-qd16]   rw=randread   bs=4k  iodepth=16
+[rand-write-4k-qd16]  rw=randwrite  bs=4k  iodepth=16</code></pre>
+    <p class="note" style="margin-top:8px">実運用のI/Oは、<code>node_disk_*_time_seconds_total</code>を完了回数で割った値を1時間ごとに求め、期間ごとの中央値とp95をとった。</p>
   </div>
 
   <footer>
