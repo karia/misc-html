@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nazuna400 SDベンチマーク</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #191c24;
+    --border: #2b303b;
+    --text: #e6e8ee;
+    --muted: #9aa2b1;
+    --accent: #6ea8fe;
+    --old: #8b93a3;
+    --good: #63d7a6;
+    --bad: #f08a7e;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --border: #e2e6ee;
+      --text: #1b1f27;
+      --muted: #667085;
+      --accent: #2563eb;
+      --old: #98a2b3;
+      --good: #0f9d64;
+      --bad: #c2410c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 48px 16px 64px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.02em; }
+  h2 { font-size: 18px; margin: 36px 0 12px; }
+  header p, .note { color: var(--muted); font-size: 13px; margin: 0; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 0 0 12px;
+  }
+  .verdict { border-left: 4px solid var(--bad); }
+  .verdict p { margin: 0 0 8px; }
+  .verdict p:last-child { margin: 0; }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+  td.num, .num { font-variant-numeric: tabular-nums; }
+  .worse { color: var(--bad); font-weight: 600; }
+  .better { color: var(--good); font-weight: 600; }
+  .bars { display: grid; gap: 14px; }
+  .bar-row .label { font-size: 13px; margin-bottom: 4px; }
+  .bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .bar span.fill { height: 12px; border-radius: 3px; min-width: 2px; }
+  .fill.old { background: var(--old); }
+  .fill.new { background: var(--accent); }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; font-size: 14px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; }
+  ul.points { margin: 0; padding-left: 20px; font-size: 14px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  pre { margin: 0; overflow-x: auto; font-size: 12px; line-height: 1.5; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>nazuna400 microSD交換後のベンチマーク</h1>
+    <p>Raspberry Pi 400 / 測定日 2026-11-19 / 交換日 2026-11-01</p>
+  </header>
+
+  <h2>結論</h2>
+  <div class="card verdict">
+    <p>交換による速度の向上は確認できなかった。実運用のI/Oで比べると、書き込み1回あたりの待ち時間は中央値で約8倍に伸びている。</p>
+    <p>交換後17日間、カーネルログにI/Oエラーは出ていない。交換の効果は速度ではなく信頼性の回復にある。</p>
+    <p class="note">交換後はjournalの永続化を有効にしたため、書き込みが小さく頻繁になっている。比較条件は揃っておらず、悪化分のすべてがカードの差とは限らない。</p>
+  </div>
+
+  <h2>測定環境</h2>
+  <div class="card">
+    <dl>
+      <dt>本体</dt><dd>Raspberry Pi 400 Rev 1.0</dd>
+      <dt>OS</dt><dd>Raspberry Pi OS Trixie（kernel 6.18.50+rpt-rpi-v8）</dd>
+      <dt>新カード</dt><dd>SanDisk SL128（119.1GiB、製造 2014-12）</dd>
+      <dt>バスモード</dt><dd>UHS-I DDR50（理論上限 約50MB/s）</dd>
+      <dt>ファイルシステム</dt><dd>ext4、使用率17%</dd>
+      <dt>電源</dt><dd><code>throttled=0x0</code>（スロットリングなし）</dd>
+    </dl>
+  </div>
+
+  <h2>新カードのベンチマーク</h2>
+  <div class="card scroll">
+    <table>
+      <thead>
+        <tr><th>テスト</th><th>帯域</th><th>IOPS</th><th>p99 レイテンシ</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>順次読み込み 1MiB QD4</td><td class="num">43.0 MiB/s</td><td class="num">43</td><td class="num">121 ms</td></tr>
+        <tr><td>順次書き込み 1MiB QD4</td><td class="num">14.8 MiB/s</td><td class="num">15</td><td class="num">617 ms</td></tr>
+        <tr><td>ランダム読み込み 4KiB QD1</td><td class="num">3.81 MiB/s</td><td class="num">976</td><td class="num">1.16 ms</td></tr>
+        <tr><td>ランダム書き込み 4KiB QD1</td><td class="num">1.73 MiB/s</td><td class="num">442</td><td class="num">4.95 ms</td></tr>
+        <tr><td>ランダム読み込み 4KiB QD16</td><td class="num">3.80 MiB/s</td><td class="num">971</td><td class="num">55.3 ms</td></tr>
+        <tr><td>ランダム書き込み 4KiB QD16</td><td class="num">1.68 MiB/s</td><td class="num">430</td><td class="num">124 ms</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="points">
+    <li>順次読み込みはDDR50の上限近くまで出ており、バスが律速している。</li>
+    <li>ランダムI/OはQD1とQD16でIOPSが変わらない。このカードとコントローラの組み合わせでは、キューを深くしても並列に処理されない。</li>
+    <li>参考までに、A1規格の最低値は読み込み1,500 IOPS、書き込み500 IOPSである。新カードはどちらも届かない。</li>
+  </ul>
+
+  <h2>旧カードとの比較（実運用のI/O）</h2>
+  <p class="note" style="margin-bottom:12px">旧カードのベンチマークは残っていないため、Prometheusのnode_exporterが記録した<code>mmcblk0</code>の1時間平均を比べる。旧カードは2026-10-10〜11-01、新カードは移行作業を終えた2026-11-02〜11-18の値。</p>
+  <div class="card">
+    <div class="legend"><span><i style="background:var(--old)"></i>旧カード</span><span><i style="background:var(--accent)"></i>新カード</span></div>
+    <div class="bars">
+      <div class="bar-row">
+        <div class="label">書き込み1回あたりの待ち時間（中央値）</div>
+        <div class="bar"><span class="fill old" style="width:calc(4.82 / 39.13 * 70%)"></span>4.82 ms</div>
+        <div class="bar"><span class="fill new" style="width:70%"></span>39.1 ms</div>
+      </div>
+      <div class="bar-row">
+        <div class="label">読み込み1回あたりの待ち時間（中央値）</div>
+        <div class="bar"><span class="fill old" style="width:calc(1.23 / 2.13 * 70%)"></span>1.23 ms</div>
+        <div class="bar"><span class="fill new" style="width:70%"></span>2.13 ms</div>
+      </div>
+    </div>
+  </div>
+  <div class="card scroll">
+    <table>
+      <thead>
+        <tr><th>指標（1時間平均）</th><th>旧 中央値</th><th>新 中央値</th><th>旧 p95</th><th>新 p95</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>書き込み待ち時間</td><td class="num">4.82 ms</td><td class="num worse">39.1 ms</td><td class="num">58.1 ms</td><td class="num worse">163 ms</td></tr>
+        <tr><td>読み込み待ち時間</td><td class="num">1.23 ms</td><td class="num worse">2.13 ms</td><td class="num">2.75 ms</td><td class="num worse">18.0 ms</td></tr>
+        <tr><td>ディスクビジー率</td><td class="num">0.08 %</td><td class="num">0.63 %</td><td class="num">0.26 %</td><td class="num">1.41 %</td></tr>
+        <tr><td>CPU iowait</td><td class="num">0.01 %</td><td class="num">0.04 %</td><td class="num">0.03 %</td><td class="num">0.21 %</td></tr>
+        <tr><td>書き込み回数</td><td class="num">0.80 回/s</td><td class="num">2.26 回/s</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>書き込み1回の平均サイズ</td><td class="num">13.4 KiB</td><td class="num">6.4 KiB</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>書き込み量</td><td class="num">39 MB/h</td><td class="num">53 MB/h</td><td class="num">184 MB/h</td><td class="num">206 MB/h</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="points">
+    <li>新カードは書き込みが約2.8倍の頻度で、1回あたり約半分のサイズになっている。journalの永続化が主な原因とみられる。</li>
+    <li>書き込みが小さくなったにもかかわらず、1回あたりの待ち時間は伸びている。小さい書き込みの処理は旧カードより遅いと考えられる。</li>
+    <li>ビジー率は1%前後にとどまる。通常の用途で体感できるほどの負荷ではない。</li>
+  </ul>
+
+  <h2>測定方法</h2>
+  <div class="card">
+    <p class="note" style="margin-bottom:8px">fio 3.39で、ルートファイルシステム上の1GiBのファイルに対して実行した。各テストは20秒（ウォームアップ2秒を除く）。</p>
+<pre><code>[global]
+size=1g
+direct=1
+ioengine=libaio
+runtime=20
+time_based
+ramp_time=2
+stonewall
+# 以下は各ジョブの設定を1行に要約したもの
+[seq-read-1m]      rw=read      bs=1m iodepth=4
+[seq-write-1m]     rw=write     bs=1m iodepth=4
+[rand-read-4k-qd1] rw=randread  bs=4k iodepth=1
+[rand-write-4k-qd1] rw=randwrite bs=4k iodepth=1
+[rand-read-4k-qd16] rw=randread  bs=4k iodepth=16
+[rand-write-4k-qd16] rw=randwrite bs=4k iodepth=16</code></pre>
+    <p class="note" style="margin-top:8px">旧カードとの比較には、<code>node_disk_*_time_seconds_total</code>を完了回数で割った値を1時間ごとに求め、期間ごとの中央値とp95をとった。</p>
+  </div>
+
+  <footer>
+    <a href="./">misc-html トップへ</a>
+  </footer>
+</div>
+</body>
+</html>
