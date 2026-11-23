@@ -14,6 +14,7 @@
     --accent: #6ea8fe;
     --old: #8b93a3;
     --bad: #f08a7e;
+    --new: #63d7a6;
   }
   @media (prefers-color-scheme: light) {
     :root {
@@ -25,6 +26,7 @@
       --accent: #2563eb;
       --old: #98a2b3;
       --bad: #c2410c;
+      --new: #0f9d64;
     }
   }
   * { box-sizing: border-box; }
@@ -79,7 +81,7 @@
   }
   ol.timeline li.fault::before { background: var(--bad); }
   ol.timeline li.temp::before { background: var(--accent); }
-  ol.timeline li.next::before { background: var(--card); border: 2px solid var(--muted); width: 6px; height: 6px; }
+  ol.timeline li.new::before { background: var(--new); }
   ol.timeline .when { display: block; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
   code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
   pre { margin: 0; overflow-x: auto; font-size: 12px; line-height: 1.5; }
@@ -90,15 +92,16 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>nazuna400 microSD障害と一時カードの性能</h1>
-    <p>Raspberry Pi 400 / 対象期間 2026-08-30〜2026-11-19 / 交換品への切り替え前の記録</p>
+    <h1>nazuna400 microSD障害と交換</h1>
+    <p>Raspberry Pi 400 / 対象期間 2026-08-30〜2026-11-23</p>
   </header>
 
   <h2>概要</h2>
   <div class="card verdict">
-    <p>2026-11-01にmicroSDカードが故障し、手持ちの古いカードを一時的に使っている。このページは、交換品へ切り替える前までの経緯と、一時カードの性能をまとめたもの。</p>
-    <p>一時カードでは、2026-11-01に移行してから2026-11-19までI/Oエラーが出ていない。一方で書き込みは遅い。故障前の旧カードの測定値（条件の記録がない参考値）と比べると、順次書き込みは約半分、4KiBランダム書き込みのIOPSは半分以下にとどまる。</p>
-    <p class="note">交換品へ切り替えた後に、同じ条件で測定して追記する。</p>
+    <p>2026-11-01にmicroSDカードが故障し、手持ちの古いカード（一時カード）でしのいだあと、2026-11-23に交換品（新カード）へ移行した。このページは、その経緯と3枚のカードの性能をまとめたもの。</p>
+    <p>新カードは一時カードと比べて、順次書き込みが約1.6〜1.8倍、4KiBランダム読み込みが約2倍になった。順次読み込みはバスの上限近くまで出ており、同じ条件で測った一時カード（11-19）と新カードでは変わらない。</p>
+    <p>4KiBランダム書き込みは一時カードと同程度（約400 IOPS）にとどまる。セットアップ直後の測定で一度だけ約半分に下がったが、再起動試験を兼ねて測り直すと元の水準に戻った。</p>
+    <p class="note">一時カードでは、移行した2026-11-01から2026-11-19までI/Oエラーが出ていない。新カードでも、2026-11-23 20時台に確認した時点で、移行後の再起動からエラーは出ていない。</p>
   </div>
 
   <h2>経緯</h2>
@@ -113,8 +116,13 @@
       <li class="temp"><span class="when">2026-11-01 19:09ごろ</span>一時カードで初めて起動し、データの移行と再セットアップを始める。</li>
       <li class="temp"><span class="when">2026-11-01 19:35</span>一時カードで速度を測定する（QD1）。</li>
       <li class="temp"><span class="when">2026-11-01 23:16</span>移行作業を終えて再起動する。この起動のまま運用を続ける。</li>
-      <li class="temp"><span class="when">2026-11-19</span>一時カードで改めて速度を測定する（本ページの主な測定）。この時点でも、カーネルログにI/Oエラーは出ていない。</li>
-      <li class="next"><span class="when">次の作業</span>交換品のmicroSDカードへ切り替え、同じ条件で測定する。</li>
+      <li class="temp"><span class="when">2026-11-19</span>一時カードで改めて速度を測定する。この時点でも、カーネルログにI/Oエラーは出ていない。</li>
+      <li class="new"><span class="when">2026-11-23 19時ごろ</span>一時カードのデータを退避し、交換品のmicroSDカード（新カード）に差し替えて起動する。</li>
+      <li class="new"><span class="when">2026-11-23 19:21</span>OSの更新とパッケージの導入だけを終えた、セットアップ前の新カードで速度を測定する。</li>
+      <li class="new"><span class="when">2026-11-23 20:17</span>移行作業を終えて再起動する。CO2の取得と監視も復旧する。</li>
+      <li class="new"><span class="when">2026-11-23 20:19</span>セットアップを終えた新カードで、再起動から約2分後に、もう一度速度を測定する。</li>
+      <li class="new"><span class="when">2026-11-23 20:40</span>再起動試験として再起動する。カードは起動から約1.4秒で認識され、I/Oエラーは出ない。</li>
+      <li class="new"><span class="when">2026-11-23 20:46</span>起動から5分おいて、もう一度速度を測定する。</li>
     </ol>
     <p class="note" style="margin-top:12px">11-01未明の時刻はNTPで同期する前の記録を含むため、目安である。</p>
   </div>
@@ -123,19 +131,20 @@
   <div class="card scroll">
     <table>
       <thead>
-        <tr><th></th><th>旧カード（故障）</th><th>一時カード（使用中）</th></tr>
+        <tr><th></th><th>旧カード（故障）</th><th>一時カード</th><th>新カード（使用中）</th></tr>
       </thead>
       <tbody>
-        <tr><td>型番の表示</td><td>SPCC</td><td>SL128（SanDisk）</td></tr>
-        <tr><td>容量</td><td class="num">116 GiB</td><td class="num">119 GiB</td></tr>
-        <tr><td>製造年月</td><td class="num">2025-07</td><td class="num">2014-12</td></tr>
-        <tr><td>バスモード</td><td>UHS-I DDR50</td><td>UHS-I DDR50</td></tr>
-        <tr><td>累積書き込み</td><td class="num">約165 GB（故障時）</td><td>—</td></tr>
+        <tr><td>型番の表示</td><td>SPCC</td><td>SL128（SanDisk）</td><td>SPCC</td></tr>
+        <tr><td>容量</td><td class="num">116 GiB</td><td class="num">119 GiB</td><td class="num">116 GiB</td></tr>
+        <tr><td>製造年月</td><td class="num">2025-07</td><td class="num">2014-12</td><td class="num">2026-08</td></tr>
+        <tr><td>バスモード</td><td>UHS-I DDR50</td><td>UHS-I DDR50</td><td>UHS-I DDR50</td></tr>
+        <tr><td>累積書き込み</td><td class="num">約165 GB（故障時）</td><td>—</td><td>—</td></tr>
       </tbody>
     </table>
   </div>
   <ul class="points">
-    <li>電源は旧カードの故障時も一時カードでも<code>throttled=0x0</code>で、電圧低下の記録はない。</li>
+    <li>新カードは旧カードと同じ製造元の表示で、容量も同じである。</li>
+    <li>電源は旧カードの故障時も、一時カードと新カードでも<code>throttled=0x0</code>で、電圧低下の記録はない。</li>
     <li>一時カードに替えてからエラーが止まったため、原因はカード側の可能性が高い。ただし旧カードを別の機器で検証していないので、本体のSDスロットの不具合も否定できていない。</li>
   </ul>
 
@@ -143,13 +152,13 @@
   <div class="card scroll">
     <table>
       <thead>
-        <tr><th>テスト</th><th>旧カード<br>08-30</th><th>一時カード<br>11-01</th><th>一時カード<br>11-19</th></tr>
+        <tr><th>テスト</th><th>旧カード<br>08-30</th><th>一時カード<br>11-01</th><th>一時カード<br>11-19</th><th>新カード<br>11-23 前</th><th>新カード<br>11-23 後</th><th>新カード<br>11-23 再起動後</th></tr>
       </thead>
       <tbody>
-        <tr><td>順次読み込み</td><td class="num">—</td><td class="num">33.6 MiB/s</td><td class="num">43.0 MiB/s</td></tr>
-        <tr><td>順次書き込み</td><td class="num">27.0 MiB/s</td><td class="num">10.7 MiB/s</td><td class="num">14.8 MiB/s</td></tr>
-        <tr><td>4KiBランダム読み込み</td><td class="num">—</td><td class="num">787 IOPS</td><td class="num">976 IOPS</td></tr>
-        <tr><td>4KiBランダム書き込み</td><td class="num">985 IOPS</td><td class="num">336 IOPS</td><td class="num">442 IOPS</td></tr>
+        <tr><td>順次読み込み</td><td class="num">—</td><td class="num">33.6 MiB/s</td><td class="num">43.0 MiB/s</td><td class="num">43.4 MiB/s</td><td class="num">41.5 MiB/s</td><td class="num">43.3 MiB/s</td></tr>
+        <tr><td>順次書き込み</td><td class="num">27.0 MiB/s</td><td class="num">10.7 MiB/s</td><td class="num">14.8 MiB/s</td><td class="num">26.2 MiB/s</td><td class="num">23.8 MiB/s</td><td class="num">26.9 MiB/s</td></tr>
+        <tr><td>4KiBランダム読み込み</td><td class="num">—</td><td class="num">787 IOPS</td><td class="num">976 IOPS</td><td class="num">2,087 IOPS</td><td class="num">1,916 IOPS</td><td class="num">2,123 IOPS</td></tr>
+        <tr><td>4KiBランダム書き込み</td><td class="num">985 IOPS</td><td class="num">336 IOPS</td><td class="num">442 IOPS</td><td class="num">424 IOPS</td><td class="num">238 IOPS</td><td class="num">406 IOPS</td></tr>
       </tbody>
     </table>
   </div>
@@ -157,8 +166,10 @@
     <li>旧カードの値は、故障の2か月前に測った結果の一部である。測定条件の記録が残っておらず、読み込みの値もない。参考値として扱う。</li>
     <li>11-01はすべてキュー深度1、11-19は順次だけキュー深度4で測った。順次I/Oで11-19の値が高いのは、主にこの条件差による。</li>
     <li>4KiBランダムは両日ともキュー深度1だが、11-19のほうが約1.2〜1.3倍高い。11-01は移行作業の最中に測ったため、裏で動いていた処理の影響も考えられるが、原因は特定できていない。</li>
+    <li>新カードの「前」はOSの更新とパッケージの導入だけを済ませた時点、「後」はセットアップと再起動を終えた後（ルートファイルシステムの使用率10%）、「再起動後」はもう一度再起動して5分おいた後の値。いずれも11-19と同じ条件で測った。</li>
+    <li>新カードの4KiBランダム書き込みは、「後」の測定で238 IOPSに下がったが、「再起動後」は406 IOPSでセットアップ前と同程度だった。「後」は再起動から約2分後に測っており、起動直後の処理と重なった可能性がある。低下は再現しておらず、一時的なものだったとみられるが、原因は特定できていない。</li>
     <li>順次読み込みはDDR50の上限（約50MB/s）近くまで出ている。</li>
-    <li>参考までに、A1規格の最低値は読み込み1,500 IOPS、書き込み500 IOPSである。一時カードはどちらも届かない。</li>
+    <li>参考までに、A1規格の最低値は読み込み1,500 IOPS、書き込み500 IOPSである。一時カードはどちらも届かない。新カードは読み込みだけが届く。</li>
   </ul>
 
   <h3 style="font-size:15px;margin:24px 0 8px">一時カードの詳細（2026-11-19）</h3>
@@ -179,8 +190,26 @@
   </div>
   <p class="note">ランダムI/OはQD1とQD16でIOPSが変わらない。このカードとコントローラの組み合わせでは、キューを深くしても並列に処理されない。</p>
 
+  <h3 style="font-size:15px;margin:24px 0 8px">新カードの詳細（2026-11-23）</h3>
+  <div class="card scroll">
+    <table>
+      <thead>
+        <tr><th>テスト</th><th>前 IOPS</th><th>前 p99</th><th>後 IOPS</th><th>後 p99</th><th>再起動後 IOPS</th><th>再起動後 p99</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>順次読み込み 1MiB QD4</td><td class="num">43</td><td class="num">98.0 ms</td><td class="num">41</td><td class="num">148 ms</td><td class="num">43</td><td class="num">122 ms</td></tr>
+        <tr><td>順次書き込み 1MiB QD4</td><td class="num">26</td><td class="num">709 ms</td><td class="num">24</td><td class="num">826 ms</td><td class="num">27</td><td class="num">726 ms</td></tr>
+        <tr><td>ランダム読み込み 4KiB QD1</td><td class="num">2,087</td><td class="num">0.45 ms</td><td class="num">1,916</td><td class="num">0.46 ms</td><td class="num">2,123</td><td class="num">0.46 ms</td></tr>
+        <tr><td>ランダム書き込み 4KiB QD1</td><td class="num">424</td><td class="num">12.1 ms</td><td class="num">238</td><td class="num">40.6 ms</td><td class="num">406</td><td class="num">12.4 ms</td></tr>
+        <tr><td>ランダム読み込み 4KiB QD16</td><td class="num">2,311</td><td class="num">22.9 ms</td><td class="num">2,144</td><td class="num">55.8 ms</td><td class="num">2,332</td><td class="num">23.2 ms</td></tr>
+        <tr><td>ランダム書き込み 4KiB QD16</td><td class="num">459</td><td class="num">179 ms</td><td class="num">299</td><td class="num">549 ms</td><td class="num">404</td><td class="num">114 ms</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">帯域（MiB/s）は「速度の測定結果」の表を参照。新カードはQD1のランダム読み込みのp99が0.5ms前後と短く、一時カードの半分以下である。書き込みのp99は一時カードより長い。</p>
+
   <h2>実運用のI/O（Prometheus）</h2>
-  <p class="note" style="margin-bottom:12px">node_exporterが記録した<code>mmcblk0</code>の1時間平均を比べる。旧カードは2026-10-10 10:00〜10-31 24:00、一時カードは2026-11-02 00:00〜11-18 23:00の値（いずれもJST）。旧カードは異常が出始めた11-01より前で、一時カードは移行作業を終えた翌日からで区切っている。</p>
+  <p class="note" style="margin-bottom:12px">node_exporterが記録した<code>mmcblk0</code>の1時間平均を比べる。旧カードは2026-10-10 10:00〜10-31 24:00、一時カードは2026-11-02 00:00〜11-18 23:00の値（いずれもJST）。旧カードは異常が出始めた11-01より前で、一時カードは移行作業を終えた翌日からで区切っている。新カードは運用期間がまだ短いため、この比較には含めていない。</p>
   <div class="card">
     <div class="legend"><span><i style="background:var(--old)"></i>旧カード</span><span><i style="background:var(--accent)"></i>一時カード</span></div>
     <div class="bars">
@@ -220,7 +249,7 @@
 
   <h2>測定方法</h2>
   <div class="card">
-    <p class="note" style="margin-bottom:8px">2026-11-19の測定は、fio 3.39で、ルートファイルシステム上の1GiBのファイルに対して実行した。各テストは20秒（ウォームアップ2秒を除く）。</p>
+    <p class="note" style="margin-bottom:8px">2026-11-19と2026-11-23の測定は、fio 3.39で、ルートファイルシステム上の1GiBのファイルに対して実行した。各テストは20秒（ウォームアップ2秒を除く）。</p>
 <pre><code>[global]
 size=1g
 direct=1
